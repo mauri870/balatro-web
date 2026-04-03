@@ -1,8 +1,6 @@
-diff --git a/resources/shaders/hologram.fs b/resources/shaders/hologram.fs
-index ccea297..b8a5ad5 100644
---- resources/shaders/hologram.fs
-+++ resources/shaders/hologram.fs
-@@ -55,7 +55,7 @@ vec4 effect( vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords
+--- unpacked/resources/shaders/hologram.fs	2026-04-03 12:54:46.063948905 -0300
++++ unpacked/resources/shaders/hologram.fs	2026-04-03 12:56:56.363219670 -0300
+@@ -55,7 +55,7 @@
  {
      //Glow effect
      number glow = 0.;
