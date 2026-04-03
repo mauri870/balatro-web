@@ -412,7 +412,7 @@ SOFTWARE.
 
   var uri = search.get('g');
   if (uri == null)
-    uri = 'nogame.love';
+    uri = 'game.love';
   var arg = search.get('arg');
   if (arg) {
     try {
@@ -481,8 +481,8 @@ SOFTWARE.
       })
       .catch(function (err) {
         console.log(err);
-        if (uri != 'nogame.love') {
-          uri = 'nogame.love';
+        if (uri != 'game.love') {
+          uri = 'game.love';
           arg = null;
           Player.runLove();
         }
