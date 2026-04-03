@@ -28,6 +28,36 @@ SOFTWARE.
 -- normalizem.lua is a series of hacks which ensure that
 -- any optional love.js modules behave as expected
 
+if love.window then
+  local DEFAULT_W = 1280
+  local DEFAULT_H = 720
+
+  -- Bootstrap: if the window was opened 0x0, set a real size now (before love.load).
+  if love.graphics and love.graphics.getWidth() == 0 then
+    love.window.setMode(DEFAULT_W, DEFAULT_H, {fullscreen = false, resizable = true})
+  end
+
+  local _setMode    = love.window.setMode
+  local _updateMode = love.window.updateMode
+
+  local function sanitize(w, h, flags)
+    flags = flags or {}
+    w = (w and w > 0) and w or DEFAULT_W
+    h = (h and h > 0) and h or DEFAULT_H
+    flags.fullscreen     = false
+    flags.fullscreentype = nil
+    return w, h, flags
+  end
+
+  love.window.setMode = function(w, h, flags)
+    return _setMode(sanitize(w, h, flags))
+  end
+
+  love.window.updateMode = function(w, h, flags)
+    return _updateMode(sanitize(w, h, flags))
+  end
+end
+
 -- WebGL 1.0 does not support mipmaps on non-power-of-two textures (NPOT), so force mipmaps=false
 if love.graphics then
   local _newImage = love.graphics.newImage
