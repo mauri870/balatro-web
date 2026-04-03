@@ -1,5 +1,6 @@
 The MIT License (MIT)
 
+Copyright (c) 2026 Mauri de Souza Meneguzzo
 Copyright (c) 2023 2dengine LLC
 Copyright (c) 2023 David Khachaturov
 Copyright (c) 2016 Tanner Rogalsky
