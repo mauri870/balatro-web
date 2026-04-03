@@ -39,6 +39,119 @@ if love.event then
   end
 end
 
+-- Shim for LuaJIT's 'bit' library using normal Lua arithmetic
+if not package.preload['bit'] then
+  package.preload['bit'] = function()
+    local function tobit(n)
+      n = n % 2^32
+      if n >= 2^31 then n = n - 2^32 end
+      return n
+    end
+
+    local function bnot(a)
+      return tobit(-(a + 1))
+    end
+
+    local function band(a, b)
+      local r, bit = 0, 1
+      for _ = 1, 32 do
+        local ab, bb = a % 2, b % 2
+        if ab + bb == 2 then r = r + bit end
+        a, b, bit = (a - ab) / 2, (b - bb) / 2, bit * 2
+      end
+      return tobit(r)
+    end
+
+    local function bor(a, b)
+      local r, bit = 0, 1
+      for _ = 1, 32 do
+        local ab, bb = a % 2, b % 2
+        if ab + bb >= 1 then r = r + bit end
+        a, b, bit = (a - ab) / 2, (b - bb) / 2, bit * 2
+      end
+      return tobit(r)
+    end
+
+    local function bxor(a, b)
+      local r, bit = 0, 1
+      for _ = 1, 32 do
+        local ab, bb = a % 2, b % 2
+        if ab ~= bb then r = r + bit end
+        a, b, bit = (a - ab) / 2, (b - bb) / 2, bit * 2
+      end
+      return tobit(r)
+    end
+
+    local function lshift(a, n)
+      n = n % 32
+      return tobit((a % 2^32) * 2^n)
+    end
+
+    local function rshift(a, n)
+      n = n % 32
+      return math.floor((a % 2^32) / 2^n)
+    end
+
+    local function arshift(a, n)
+      n = n % 32
+      a = a % 2^32
+      local r = math.floor(a / 2^n)
+      if a >= 2^31 then r = r + 2^(32-n) - 1 end -- sign-extend
+      return tobit(r)
+    end
+
+    local function rol(a, n)
+      n = n % 32
+      a = a % 2^32
+      return tobit((a * 2^n) % 2^32 + math.floor(a / 2^(32-n)))
+    end
+
+    local function ror(a, n)
+      return rol(a, 32 - n % 32)
+    end
+
+    local function bswap(a)
+      a = a % 2^32
+      local b0 = a % 256
+      local b1 = math.floor(a / 256) % 256
+      local b2 = math.floor(a / 65536) % 256
+      local b3 = math.floor(a / 16777216) % 256
+      return tobit(b0 * 16777216 + b1 * 65536 + b2 * 256 + b3)
+    end
+
+    local function tohex(a, n)
+      n = n or 8
+      a = a % 2^32
+      if n < 0 then
+        return string.format('%'..(-n)..'X', a)
+      end
+      return string.format('%0'..n..'x', a)
+    end
+
+    local function vararg_op(fn, a, ...)
+      for i = 1, select('#', ...) do
+        a = fn(a, (select(i, ...)))
+      end
+      return a
+    end
+
+    return {
+      tobit   = tobit,
+      bnot    = bnot,
+      band    = function(a, ...) return vararg_op(band, a, ...) end,
+      bor     = function(a, ...) return vararg_op(bor,  a, ...) end,
+      bxor    = function(a, ...) return vararg_op(bxor, a, ...) end,
+      lshift  = lshift,
+      rshift  = rshift,
+      arshift = arshift,
+      rol     = rol,
+      ror     = ror,
+      bswap   = bswap,
+      tohex   = tohex,
+    }
+  end
+end
+
 if love.audio then
   local playing = {}
   local function _cleanup_playing()
