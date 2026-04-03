@@ -44,7 +44,10 @@ function lfs.newFileData(fn, arg, ...)
   if not arg and not _lfs_getInfo(fn, 'file') then
     return nil, 'File does not exist: '..fn
   end
-  return _lfs_newFile(fn, arg, ...)
+  if arg ~= nil then
+    return _lfs_newFile(fn, arg, ...)
+  end
+  return _lfs_newFile(fn)
 end
 
 local reg = debug.getregistry()
