@@ -28,6 +28,16 @@ SOFTWARE.
 -- normalizem.lua is a series of hacks which ensure that
 -- any optional love.js modules behave as expected
 
+-- WebGL 1.0 does not support mipmaps on non-power-of-two textures (NPOT), so force mipmaps=false
+if love.graphics then
+  local _newImage = love.graphics.newImage
+  love.graphics.newImage = function(src, settings)
+    settings = settings or {}
+    settings.mipmaps = false
+    return _newImage(src, settings)
+  end
+end
+
 if love.event then
   local _love_event_push = love.event.push
   function love.event.push(event, action, ...)
