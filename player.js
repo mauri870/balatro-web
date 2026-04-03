@@ -489,5 +489,12 @@ SOFTWARE.
       })
   }
   
-  Player.runLove();
+  var startBtn = document.createElement('div');
+  startBtn.id = 'start';
+  startBtn.textContent = 'Click to Play';
+  document.body.appendChild(startBtn);
+  startBtn.onclick = function () {
+    startBtn.remove();
+    Player.runLove();
+  };
 })();
